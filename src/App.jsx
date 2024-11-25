@@ -1,9 +1,12 @@
+import { Outlet } from "react-router-dom";
 import "./App.css";
+import Header from "./layouts/Headers";
 
 function App() {
   return (
     <>
-      <div className="text-red-500 text-4xl">This is Gathering App </div>
+      <Header />
+      <Outlet />
     </>
   );
 }
