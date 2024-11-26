@@ -16,7 +16,7 @@ export default function requestApi(
 
   return instance.request({
     method: method,
-    url: `http://localhost:8080/${endpoint}`, // save base url to .env issue.
+    url: `${import.meta.env.VITE_USER_SERVICE_SERVER}/${endpoint}`,
     data: body,
     responseType: responseType,
   });
