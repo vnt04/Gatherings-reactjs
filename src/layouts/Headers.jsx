@@ -1,19 +1,11 @@
 import { Link } from "react-router-dom";
+import Logo from "../components/Logo";
 
 function Header() {
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-800 z-[1000] top-0 sticky">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img
-            src="src/assets/gatherings-logo.png"
-            className="h-8"
-            alt="Gatherings Logo"
-          />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-            Gatherings
-          </span>
-        </a>
+        <Logo />
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <Link
             to={"/login"}

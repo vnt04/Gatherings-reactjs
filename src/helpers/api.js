@@ -16,7 +16,7 @@ export default function requestApi(
 
   return instance.request({
     method: method,
-    url: `http://localhost:8080/${endpoint}`,
+    url: `http://localhost:8080/${endpoint}`, // save base url to .env issue.
     data: body,
     responseType: responseType,
   });
