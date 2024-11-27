@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
+import { useSelector } from "react-redux";
 
 function Channels() {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ function Channels() {
     localStorage.removeItem("refresh_token");
     navigate("/login");
   };
+
+  const user = useSelector((state) => state.auth.userData);
+  console.log(user);
 
   return (
     <>
@@ -75,13 +79,13 @@ function Channels() {
                       className="text-sm text-gray-900 dark:text-white"
                       role="none"
                     >
-                      Văn Nghiệp
+                      {user.name}
                     </p>
                     <p
                       className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                       role="none"
                     >
-                      tranvanghiep04@gmail.com
+                      {user.email}
                     </p>
                   </div>
                   <ul className="py-1" role="none">

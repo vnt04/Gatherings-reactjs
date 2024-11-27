@@ -3,9 +3,13 @@ import { isEmail, strongPassword } from "../helpers/validator";
 import requestApi from "../helpers/api";
 import Logo from "../components/Logo";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/actions/authAction";
 
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [loginData, setLoginData] = useState({});
   const [errorForm, setErrorForm] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
@@ -63,7 +67,10 @@ function Login() {
         .then((res) => {
           localStorage.setItem("access_token", res.data.access_token);
           localStorage.setItem("refresh_token", res.data.refresh_token);
-          navigate("/channels"); 
+          const userData = jwtDecode(res.data.access_token);
+          dispatch(loginSuccess(userData));
+
+          navigate("/channels");
         })
         .catch((error) => console.log(error));
     }
