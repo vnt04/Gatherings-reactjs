@@ -65,10 +65,10 @@ function Login() {
       const response = requestApi("auth/login", "POST", loginData);
       response
         .then((res) => {
-          localStorage.setItem("access_token", res.data.access_token);
-          localStorage.setItem("refresh_token", res.data.refresh_token);
           const userData = jwtDecode(res.data.access_token);
           dispatch(loginSuccess(userData));
+          localStorage.setItem("access_token", res.data.access_token);
+          localStorage.setItem("refresh_token", res.data.refresh_token);
 
           navigate("/channels");
         })

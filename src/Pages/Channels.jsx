@@ -18,7 +18,6 @@ function Channels() {
   };
 
   const user = useSelector((state) => state.auth.userData);
-  console.log(user);
 
   return (
     <>
