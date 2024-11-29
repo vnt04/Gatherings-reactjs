@@ -22,6 +22,7 @@ function Channels() {
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem("persist:root");
     navigate("/login");
   };
   const currentUser = useSelector((state) => state.auth.userData);
