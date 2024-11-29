@@ -1,7 +1,8 @@
-import { LOGIN_SUCCESS } from "../actions/authAction";
+import { LOGIN_SUCCESS, UPDATE_SUCCESS } from "../actions/authAction";
 
 const initState = {
   userData: {},
+  updateTimestamp: null,
 };
 
 const authReducer = (state = initState, action) => {
@@ -10,6 +11,11 @@ const authReducer = (state = initState, action) => {
       return {
         ...state,
         userData: { ...action.payload },
+      };
+    case UPDATE_SUCCESS:
+      return {
+        ...state,
+        updateTimestamp: Date.now(),
       };
     default:
       return state;

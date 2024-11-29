@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
-import { useSelector } from "react-redux";
+import Profile from "../components/Profile";
+import { getUserInfo } from "../APIs/userApi";
 
 function Channels() {
   const navigate = useNavigate();
+  const [user, setUser] = useState();
   const [openMenu, setOpenMenu] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   const handleUserMenu = () => {
     setOpenMenu((preState) => !preState);
+  };
+  const handleProfile = () => {
+    setOpenProfile(true);
+    setOpenMenu(false);
   };
 
   const logout = () => {
@@ -16,9 +24,16 @@ function Channels() {
     localStorage.removeItem("refresh_token");
     navigate("/login");
   };
+  const currentUser = useSelector((state) => state.auth.userData);
+  const isUpdated = useSelector((state) => state.auth.updateTimestamp);
 
-  const user = useSelector((state) => state.auth.userData);
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      const data = await getUserInfo(currentUser?.sub);
+      setUser(data);
+    };
+    fetchUser();
+  }, [isUpdated]);
   return (
     <>
       <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -78,18 +93,19 @@ function Channels() {
                       className="text-sm text-gray-900 dark:text-white"
                       role="none"
                     >
-                      {user.name}
+                      {user?.username}
                     </p>
                     <p
                       className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                       role="none"
                     >
-                      {user.email}
+                      {user?.email}
                     </p>
                   </div>
                   <ul className="py-1" role="none">
                     <li>
                       <button
+                        onClick={handleProfile}
                         className="block px-4 py-2 text-sm w-full text-left text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                         role="menuitem"
                       >
@@ -221,6 +237,11 @@ function Channels() {
           </ul>
         </div>
       </aside>
+      <Profile
+        id={currentUser?.sub}
+        show={openProfile}
+        setShow={setOpenProfile}
+      />
     </>
   );
 }
