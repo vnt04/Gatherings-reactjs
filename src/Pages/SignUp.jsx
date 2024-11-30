@@ -1,9 +1,83 @@
+import { useState, useEffect } from "react";
 import Logo from "../components/Logo";
+import { isEmail, strongPassword } from "../helpers/validator";
+import requestApi from "../helpers/api";
+import { useNavigate } from "react-router-dom";
 
 function SignUp() {
+  const navigate = useNavigate();
+  const [signUpData, setSignUpData] = useState({});
+  const [errorForm, setErrorForm] = useState({});
+  const [isSubmit, setIsSubmit] = useState(false);
+
+  const onChange = (event) => {
+    const input = event.target;
+    setSignUpData((preData) => ({
+      ...preData,
+      [input.name]: input.value,
+    }));
+  };
+
+  useEffect(() => {
+    if (isSubmit) {
+      validateForm();
+    }
+  }, [signUpData, isSubmit]);
+
+  const validateForm = () => {
+    let formIsValid = true;
+    const errors = {};
+    if (signUpData.username === "" || signUpData.username === undefined) {
+      errors.username = "Tên người dùng không được trống.";
+    }
+
+    if (signUpData.email === "" || signUpData.email === undefined) {
+      errors.email = "Email không được trống.";
+    } else {
+      const emailValid = isEmail(signUpData.email);
+      if (!emailValid) {
+        errors.email = "Vui lòng nhập email hợp lệ.";
+      }
+    }
+
+    if (signUpData.password === "" || signUpData.password === undefined) {
+      errors.password = "Mật khẩu không được trống.";
+    } else if (!strongPassword(signUpData.password)) {
+      errors.password = "Mật khẩu ít nhất 8 ký tự";
+    } else if (signUpData.password !== signUpData["confirm-password"]) {
+      errors["confirm-password"] = "Mật khẩu không trùng khớp.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrorForm(errors);
+      formIsValid = false;
+    } else {
+      setErrorForm({});
+    }
+
+    return formIsValid;
+  };
+  const handleSignUp = async () => {
+    const valid = validateForm();
+    if (valid) {
+      try {
+        const newUser = {
+          username: signUpData.username,
+          email: signUpData.email,
+          password: signUpData.password,
+        };
+        await requestApi("user/register", "POST", newUser);
+        navigate("/login");
+      } catch (error) {
+        console.log(error);
+        //handle error here
+      }
+    }
+    setIsSubmit(true);
+  };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
-      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <div className="flex flex-col items-center justify-center px-6 py-8  mx-auto md:h-screen lg:py-0">
         <div className="mb-4">
           <Logo />
         </div>
@@ -12,7 +86,27 @@ function SignUp() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Đăng ký tài khoản
             </h1>
-            <form className="space-y-4 md:space-y-6" action="#">
+            <form className="space-y-4 md:space-y-6">
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Tên người dùng
+                </label>
+                <input
+                  type="username"
+                  name="username"
+                  id="username"
+                  onChange={onChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="tên người dùng"
+                  required=""
+                />
+                {errorForm.username && (
+                  <p className="text-red-600 mt-0.5">{errorForm.username}</p>
+                )}
+              </div>
               <div>
                 <label
                   htmlFor="email"
@@ -24,10 +118,14 @@ function SignUp() {
                   type="email"
                   name="email"
                   id="email"
+                  onChange={onChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
                   required=""
                 />
+                {errorForm.email && (
+                  <p className="text-red-600 mt-0.5">{errorForm.email}</p>
+                )}
               </div>
               <div>
                 <label
@@ -41,9 +139,13 @@ function SignUp() {
                   name="password"
                   id="password"
                   placeholder="••••••••"
+                  onChange={onChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required=""
                 />
+                {errorForm.password && (
+                  <p className="text-red-600 mt-0.5">{errorForm.password}</p>
+                )}
               </div>
               <div>
                 <label
@@ -53,13 +155,19 @@ function SignUp() {
                   Nhập lại mật khẩu
                 </label>
                 <input
-                  type="confirm-password"
+                  type="password"
                   name="confirm-password"
                   id="confirm-password"
                   placeholder="••••••••"
+                  onChange={onChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required=""
                 />
+                {errorForm["confirm-password"] && (
+                  <p className="text-red-600 mt-0.5">
+                    {errorForm["confirm-password"]}
+                  </p>
+                )}
               </div>
               <div className="flex items-start">
                 <div className="flex items-center h-5">
@@ -87,7 +195,8 @@ function SignUp() {
                 </div>
               </div>
               <button
-                type="submit"
+                type="button"
+                onClick={handleSignUp}
                 className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Tạo tài khoản
@@ -95,7 +204,7 @@ function SignUp() {
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Bạn đã có tài khoản?{" "}
                 <a
-                  href="#"
+                  href="/login"
                   className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   Đăng nhập
