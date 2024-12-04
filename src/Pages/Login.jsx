@@ -10,9 +10,18 @@ import { loginSuccess } from "../redux/actions/authAction";
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loginData, setLoginData] = useState({});
+  const [loginData, setLoginData] = useState(getRememberAccount());
+  const [isRememberAccount, setIsRememberAccount] = useState(
+    localStorage.getItem("is_remember_acc") === "true" ? true : false
+  );
   const [errorForm, setErrorForm] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
+
+  function getRememberAccount() {
+    const email = localStorage.getItem("rem_email") || "";
+    const password = localStorage.getItem("rem_password") || "";
+    return { email, password };
+  }
 
   const onChange = (event) => {
     const input = event.target;
@@ -69,6 +78,15 @@ function Login() {
           dispatch(loginSuccess(userData));
           localStorage.setItem("access_token", res.data.access_token);
           localStorage.setItem("refresh_token", res.data.refresh_token);
+          if (isRememberAccount) {
+            localStorage.setItem("rem_email", loginData.email);
+            localStorage.setItem("rem_password", loginData.password);
+            localStorage.setItem("is_remember_acc", true);
+          } else {
+            localStorage.removeItem("rem_email");
+            localStorage.removeItem("rem_password");
+            localStorage.setItem("is_remember_acc", false);
+          }
 
           navigate("/channels");
         })
@@ -100,10 +118,10 @@ function Login() {
                   type="email"
                   name="email"
                   id="email"
+                  value={loginData.email}
                   onChange={onChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="yourname@gmail.com"
-                  required=""
                 />
                 {errorForm.email && (
                   <p className="text-red-600 mt-0.5">{errorForm.email}</p>
@@ -120,10 +138,10 @@ function Login() {
                   type="password"
                   name="password"
                   id="password"
+                  value={loginData.password}
                   onChange={onChange}
                   placeholder="••••••••"
                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  required=""
                 />
                 {errorForm.password && (
                   <p className="text-red-600 mt-0.5">{errorForm.password}</p>
@@ -137,7 +155,10 @@ function Login() {
                       aria-describedby="remember"
                       type="checkbox"
                       className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                      required=""
+                      checked={isRememberAccount}
+                      onChange={(e) => {
+                        setIsRememberAccount((preState) => !preState);
+                      }}
                     />
                   </div>
                   <div className="ml-3 text-sm">
